@@ -1,0 +1,45 @@
+networks:
+  bitrixdock:
+
+services:
+  php:
+    build: ./php/${PHP_VERSION}
+    container_name: ${COMPOSE_PROJECT_NAME}_php
+    volumes_from:
+      - source
+    environment:
+      - TZ=Europe/Moscow
+    stdin_open: true
+    tty: true
+    networks:
+      - bitrixdock
+    restart: on-failure
+  web_server:
+    build: ./${WEB_SERVER_TYPE}
+    container_name: ${COMPOSE_PROJECT_NAME}_web_server
+    depends_on:
+      - source
+    volumes_from:
+      - source
+    ports:
+      - '${INTERFACE}:80:80'
+      - '${INTERFACE}:443:443'
+    links:
+      - php
+    networks:
+      - bitrixdock
+    environment:
+      - TZ=Europe/Moscow
+    stdin_open: true
+    tty: true
+    restart: on-failure
+  source:
+    image: alpine:latest
+    container_name: ${COMPOSE_PROJECT_NAME}_source
+    volumes:
+      - ./logs/${WEB_SERVER_TYPE}:/var/log/${WEB_SERVER_TYPE}
+      - ./logs/php:/var/log/php
+      - ${SITE_PATH}:/var/www/bitrix
+      - /etc/localtime:/etc/localtime/:ro
+    networks:
+      - bitrixdock

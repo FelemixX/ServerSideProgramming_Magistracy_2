@@ -1,0 +1,6 @@
+.idea
+.git
+vendor/composer
+vendor/autoload.php
+converted
+uploaded_latex
